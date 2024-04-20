@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:screen_capturer_platform_interface/screen_capturer_platform_interface.dart';
@@ -69,7 +70,18 @@ class ScreenCapturer {
       imageBytes = imageFile.readAsBytesSync();
     }
     if (copyToClipboard) {
-      imageBytes = await readImageFromClipboard();
+      var startTime = DateTime.now().millisecondsSinceEpoch;
+      while (true) {
+        imageBytes = await readImageFromClipboard();
+        if (imageBytes != null) {
+          break;
+        }
+
+        if (DateTime.now().millisecondsSinceEpoch - startTime > 5000) {
+          break;
+        }
+        sleep(const Duration(milliseconds: 50));
+      }
     }
 
     if (imageBytes != null) {
